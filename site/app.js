@@ -2,6 +2,9 @@
 const $ = (s) => document.querySelector(s);
 const escapeHTML = (v) => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const terms = {
+  ipok: {title:'IPOK 检测提示', text:'汇总 IP 类型、代理 / VPN 标记与黑名单等风险信号。风险值为 0–100，越低表示该站发现的不利证据越少；结合来源明细查看，低分不保证所有平台都可用。', url:'https://ipok.io/'},
+  coffee: {title:'Net.Coffee 检测提示', text:'查看当前出口、归属地及访问不同网站时的出口 IP。对比各站 IP 是否符合预期分流；不同 IP 不一定异常，“未知”也不等于连接失败。', url:'https://ip.net.coffee/'},
+  ipip: {title:'IPIP.la 检测提示', text:'检查网络、浏览器指纹及时区 / 语言等环境一致性。伪装正确率越高，表示该站判定的环境匹配程度越高；优先看“注意”“风险”和整改建议，不等同于 IP 欺诈风险评分。', url:'https://ipip.la/disguise.html'},
   dns: {title:'DNS 检测提示', text:'重点留意：DNS 结果中是否出现中国（CN）地区。地区仅供参考；若非预期，请检查 DNS 与代理分流。', url:'https://browserleaks.com/dns'},
   type: {title:'AS Type · 网络类型', text:'ASN 所属组织的类型。isp 表示互联网服务提供商，hosting 表示托管或机房网络，business 表示企业网络。运营商网络也可能用于代理或商业服务，不能仅凭 isp 认定为家庭住宅 IP。', url:'https://ipinfo.io/developers/asn'},
   privacy: {title:'Privacy · 匿名服务标记', text:'表示数据源是否将该 IP 关联到 VPN、代理、Tor 或中继等匿名服务。false 只表示未被该数据源识别；不保证没有使用代理。true 也不等于发生了恶意行为。', url:'https://ipinfo.io/developers/data-types'},
@@ -23,9 +26,9 @@ const defaults = [
   {id:'leaks',name:'BrowserLeaks',kind:'DNS 泄漏检测 · 打开自动检测',enabled:true}
 ];
 const shortcuts = {
-  ipok:{initial:'OK',name:'IPOK',desc:'IP 纯净度与风险查询',type:'原站查询',url:'https://ipok.io/'},
-  coffee:{initial:'nc',name:'Net.Coffee',desc:'查看 IP 与代理分流情况',type:'检测当前连接',url:'https://ip.net.coffee/'},
-  ipip:{initial:'la',name:'IPIP.la',desc:'伪装程度与浏览器环境',type:'检测当前连接',url:'https://ipip.la/disguise.html'},
+  ipok:{initial:'OK',name:'IPOK',desc:'IP 纯净度与风险查询',type:'原站查询',url:'https://ipok.io/',help:'ipok'},
+  coffee:{initial:'nc',name:'Net.Coffee',desc:'查看 IP 与代理分流情况',type:'检测当前连接',url:'https://ip.net.coffee/',help:'coffee'},
+  ipip:{initial:'la',name:'IPIP.la',desc:'伪装程度与浏览器环境',type:'检测当前连接',url:'https://ipip.la/disguise.html',help:'ipip'},
   leaks:{initial:'bl',name:'BrowserLeaks',desc:'DNS 泄漏检测 · 当前浏览器连接',type:'打开自动检测',url:'https://browserleaks.com/dns',help:'dns'}
 };
 const config=window.IP_LENS_CONFIG||{};
