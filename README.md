@@ -11,7 +11,8 @@ IP 信息与常用风险检测入口聚合工具。前端托管在 GitHub Pages�
 - IPinfo 基础数据、原始返回数据及中文解释。
 - 免费方案不提供的 VPN、住宅身份、AS Type、Company 等字段明确显示“未提供”。没有数据不代表低风险。
 - Scamalytics 风险评估跳转：分数越低，评估的欺诈风险越低。
-- IPOK、Net.Coffee、IPIP.la、BrowserLeaks 快捷入口。
+- IPOK、Net.Coffee、IPIP.la、BrowserLeaks 快捷入口。BrowserLeaks 直达 `https://browserleaks.com/dns`，专页会自动启动 DNS 泄漏检测，无需再点击 IP 综合页的 Run DNS Leak Test 按钮。
+- BrowserLeaks 卡片提醒留意 DNS 结果是否出现中国（CN）地区；地区是排查线索，不能单凭地区判定泄漏。该检测使用浏览器当前连接，与上方手动输入的目标 IP 无关。
 - 可开启、关闭和排序检测源，偏好保存在浏览器本地。
 
 ## 免费数据路径

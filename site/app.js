@@ -19,13 +19,13 @@ const defaults = [
   {id:'ipok',name:'IPOK',kind:'IP 纯净度与风险查询 · 快捷入口',enabled:true},
   {id:'coffee',name:'Net.Coffee',kind:'IP 查询与分流测试 · 快捷入口',enabled:true},
   {id:'ipip',name:'IPIP.la',kind:'伪装与环境检测 · 快捷入口',enabled:true},
-  {id:'leaks',name:'BrowserLeaks',kind:'浏览器隐私与泄漏检测 · 快捷入口',enabled:true}
+  {id:'leaks',name:'BrowserLeaks',kind:'DNS 泄漏检测 · 打开自动检测',enabled:true}
 ];
 const shortcuts = {
   ipok:{initial:'OK',name:'IPOK',desc:'IP 纯净度与风险查询',type:'原站查询',url:'https://ipok.io/'},
   coffee:{initial:'nc',name:'Net.Coffee',desc:'查看 IP 与代理分流情况',type:'检测当前连接',url:'https://ip.net.coffee/'},
   ipip:{initial:'la',name:'IPIP.la',desc:'伪装程度与浏览器环境',type:'检测当前连接',url:'https://ipip.la/disguise.html'},
-  leaks:{initial:'bl',name:'BrowserLeaks',desc:'WebRTC、DNS 与浏览器隐私',type:'检测当前连接',url:'https://browserleaks.com/'}
+  leaks:{initial:'bl',name:'BrowserLeaks',desc:'DNS 泄漏检测 · 当前浏览器连接',type:'打开自动检测',url:'https://browserleaks.com/dns',note:'重点留意：DNS 结果中是否出现中国（CN）地区。',noteDetail:'地区仅供参考；若非预期，请检查 DNS 与代理分流。'}
 };
 const config=window.IP_LENS_CONFIG||{};
 const apiBase=String(config.apiBase||'').replace(/\/$/,'');
@@ -71,7 +71,7 @@ function renderSummary(){
 }
 function renderShortcuts(){
   const items=sources.filter(s=>s.enabled&&shortcuts[s.id]);$('#shortcut-count').textContent=`${items.length} 个快捷入口`;
-  $('#shortcuts').innerHTML=items.length?items.map(s=>{const c=shortcuts[s.id];return `<a class="shortcut" href="${c.url}" target="_blank" rel="noopener noreferrer" aria-label="在新标签页打开 ${c.name}，${c.type}"><div class="shortcut-top"><span class="shortcut-monogram" aria-hidden="true">${c.initial}</span><span class="shortcut-arrow" aria-hidden="true">↗</span></div><h3>${c.name}</h3><p>${c.desc}</p><span class="shortcut-type">${c.type} · 快捷跳转</span></a>`;}).join(''):'<div class="all-empty">快捷入口已全部关闭。可在“管理检测源”中重新开启。</div>';
+  $('#shortcuts').innerHTML=items.length?items.map(s=>{const c=shortcuts[s.id];return `<a class="shortcut" href="${c.url}" target="_blank" rel="noopener noreferrer" aria-label="在新标签页打开 ${c.name}，${c.type}"><div class="shortcut-top"><span class="shortcut-monogram" aria-hidden="true">${c.initial}</span><span class="shortcut-arrow" aria-hidden="true">↗</span></div><h3>${c.name}</h3><p>${c.desc}</p><span class="shortcut-type">${c.type} · 快捷跳转</span>${c.note?`<span class="shortcut-note"><strong>${c.note}</strong><span>${c.noteDetail}</span></span>`:''}</a>`;}).join(''):'<div class="all-empty">快捷入口已全部关闭。可在“管理检测源”中重新开启。</div>';
 }
 function render(){hideTooltip();renderInfo();renderRisk();renderSummary();renderShortcuts();syncLinks();const order=sources.filter(s=>s.id==='ipinfo'||s.id==='scam');$('.info-panel').style.order=order.findIndex(s=>s.id==='ipinfo');$('.risk-panel').style.order=order.findIndex(s=>s.id==='scam');}
 function updateQueryMeta(){

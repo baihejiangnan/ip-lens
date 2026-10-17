@@ -14,3 +14,5 @@
 @media(max-width:1000px){.risk-jump{padding-left:18px;padding-right:18px}.risk-jump h3{font-size:20px}.risk-jump-description{font-size:13px}}
 @media(max-width:760px){.risk-jump{padding-left:24px;padding-right:24px}.risk-jump-tag{margin-bottom:14px}.risk-jump~.risk-note{margin-top:20px}}
 @media(max-width:480px){.risk-jump{padding-left:18px;padding-right:18px}}
+
+.shortcut-note{display:block;margin-top:12px;padding:10px 11px;border-radius:7px;background:var(--amber-light);color:var(--amber);font-size:12px;line-height:1.8}.shortcut-note strong{display:block;font-weight:600}.shortcut-note>span{display:block;margin-top:5px;font-size:11px;color:#795526}
