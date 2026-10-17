@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="IP Lens：在一页查看 IP 信息、网络属性与风险结果。使用免费 IP 基础查询与原站风险评估入口。">
+  <title>IP Lens · IP 检测台</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="header"><div class="header-inner">
+    <a href="#" class="brand" aria-label="IP Lens 首页"><span class="brand-mark">ip<span>·</span></span> IP Lens</a>
+    <nav aria-label="主导航"><a class="nav-active" href="#dashboard">检测台</a><button class="nav-button" data-action="glossary">术语说明</button></nav>
+    <span class="prototype-badge"><span class="status-dot"></span>免费基础查询</span>
+  </div></header>
+  <main id="dashboard">
+    <div class="intro"><div><div class="eyebrow">你的 IP，一目了然</div><h1>看清你的网络出口<span>。</span></h1><p>IP 信息、网络属性、风险记录，在一个页面看完。</p></div><button class="button secondary" data-action="manage"><span aria-hidden="true">☷</span> 管理检测源</button></div>
+    <div class="demo-bar"><div><span class="tag good">实时查询</span><span id="service-note">IPinfo 免费基础查询；VPN 与住宅属性数据未提供。</span></div></div>
+    <section class="query-panel" aria-label="查询设置">
+      <div class="query-top"><div class="segmented" role="group" aria-label="查询方式"><button id="current-mode" class="selected" aria-pressed="true">当前出口</button><button id="manual-mode" aria-pressed="false">指定 IP</button></div><span class="small muted" id="mode-note">切换节点后点击重新检测</span></div>
+      <form id="query-form" novalidate><div class="input-wrap"><label for="ip-input" id="input-label">当前出口 IP</label><div class="ip-entry"><input id="ip-input" value="" placeholder="等待获取…" readonly spellcheck="false" autocomplete="off" aria-describedby="ip-error mode-note"><button type="button" class="copy-button" id="copy-ip" aria-label="复制查询 IP">复制 IP</button></div></div><button type="submit" class="button primary" id="run-button"><span aria-hidden="true">↻</span> 重新检测</button></form>
+      <p id="ip-error" class="field-error" role="alert" hidden></p>
+      <div class="query-meta"><span id="query-context">等待获取当前网络出口</span><span id="query-time">尚未查询</span></div>
+    </section>
+    <div id="summary" class="summary" role="status" aria-live="polite"></div>
+    <div class="results-grid">
+      <section class="panel info-panel" aria-labelledby="info-title"><div class="panel-heading"><div class="source-title"><span class="source-logo info-logo">i</span><div><h2 id="info-title">IP 与网络属性</h2><p>IPinfo <span class="source-tag">免费基础信息</span></p></div></div><a id="ipinfo-link" class="external-link" href="https://ipinfo.io/what-is-my-ip" target="_blank" rel="noopener noreferrer">查看原站 <span aria-hidden="true">↗</span></a></div><div id="info-result"></div></section>
+      <section class="panel risk-panel" aria-labelledby="risk-title"><div class="panel-heading"><div class="source-title"><span class="source-logo risk-logo">s</span><div><h2 id="risk-title">风险评估</h2><p>Scamalytics <span class="source-tag">快捷跳转</span></p></div></div><a id="scam-link" class="external-link" href="https://scamalytics.com/" target="_blank" rel="noopener noreferrer">原站 <span aria-hidden="true">↗</span></a></div><div id="risk-result"></div></section>
+    </div>
+    <section class="shortcuts-section" aria-labelledby="shortcut-title"><div class="section-heading"><div><h2 id="shortcut-title">继续交叉验证</h2><p>这些网站暂以快捷入口提供，结果需在原站查看。</p></div><span class="small muted" id="shortcut-count">4 个快捷入口</span></div><div id="shortcuts" class="shortcut-grid"></div><p class="routing-note"><span aria-hidden="true">ⓘ</span> 检测当前连接的网站会使用访问它时的出口；开启代理分流时，它看到的 IP 可能不同。</p></section>
+    <footer><span class="footer-brand">IP Lens</span><span>IP 数据由 <a href="https://ipinfo.io" target="_blank" rel="noopener noreferrer">IPinfo</a> 提供。</span><button data-action="about">关于 IP Lens <span aria-hidden="true">↗</span></button></footer>
+  </main>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="glossary-dialog" class="modal glossary-modal"><div class="modal-heading"><div><span class="eyebrow">读懂检测结果</span><h2>不熟悉这些名词？</h2></div><button class="icon-button" data-close="glossary-dialog" aria-label="关闭术语说明">×</button></div><p class="muted">悬停、聚焦或点击结果旁的问号，也可以查看解释。</p><div id="glossary-content"></div><div class="modal-footer"><span class="small muted">解释依据官方字段定义，结果仍需交叉判断。</span><button class="button secondary" data-close="glossary-dialog">知道了</button></div></dialog>
+  <dialog id="manage-dialog" class="modal manage-modal"><div class="modal-heading"><div><span class="eyebrow">按你的习惯排列</span><h2>管理检测源</h2></div><button class="icon-button" data-close="manage-dialog" aria-label="关闭检测源设置">×</button></div><p class="muted">选择显示的来源，用上下按钮调整顺序。偏好保存在此浏览器。</p><div id="manage-content"></div><div class="modal-footer"><button class="text-button" id="reset-sources">恢复默认</button><button class="button primary" data-close="manage-dialog">完成</button></div></dialog>
+  <dialog id="about-dialog" class="modal about-modal"><div class="modal-heading"><h2>关于 IP Lens</h2><button class="icon-button" data-close="about-dialog" aria-label="关闭说明">×</button></div><p>IP Lens 汇总免费 IP 基础信息与常用检测入口。IP 地址数据由 <a href="https://ipinfo.io" target="_blank" rel="noopener noreferrer">IPinfo</a> 提供。</p><p>当前 IP 是访问对应检测服务时看到的出口。开启代理分流时，其他网站看到的出口可能不同。</p><p>免费基础查询不提供 VPN、住宅身份和欺诈风险结论。没有数据的字段显示“未提供”，不会推断为安全。</p><p>Scamalytics 在原位置提供带入查询 IP 的风险评估入口。具体分数与详细信息请在原站查看。</p><p>页面在本机保存检测源偏好，不保存查询历史。使用其他检测站时，查询 IP 会发送至对应服务。</p><button class="button primary" data-close="about-dialog">明白了</button></dialog>
+  <noscript><p>请启用 JavaScript 以使用交互功能。</p></noscript>
+</body>
+</html>
