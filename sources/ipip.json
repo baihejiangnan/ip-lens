@@ -1,0 +1,10 @@
+{
+  "id": "ipip",
+  "name": "IPIP.la",
+  "url": "https://ipip.la/disguise.html",
+  "description": "伪装程度与浏览器环境",
+  "initial": "la",
+  "hint": "检查网络、浏览器指纹及时区 / 语言等环境一致性。伪装正确率越高，表示该站判定的环境匹配程度越高；优先看“注意”“风险”和整改建议，不等同于 IP 欺诈风险评分。",
+  "type": "检测当前连接",
+  "order": 30
+}

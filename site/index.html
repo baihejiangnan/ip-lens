@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="IP Lens：在一页查看 IP 信息、网络属性与风险结果。使用免费 IP 基础查询与原站风险评估入口。">
   <title>IP Lens · IP 检测台</title>
-  <link rel="stylesheet" href="styles.css?v=20261017-cross-help">
-  <script src="config.js" defer></script>
-  <script src="app.js?v=20261017-cross-help" defer></script>
+  <link rel="stylesheet" href="styles.css?v=2284ef442f15">
+  <script src="app.js?v=2284ef442f15" type="module"></script>
 </head>
 <body>
   <header class="header"><div class="header-inner">
@@ -29,11 +28,30 @@
       <section class="panel info-panel" aria-labelledby="info-title"><div class="panel-heading"><div class="source-title"><span class="source-logo info-logo">i</span><div><h2 id="info-title">IP 与网络属性</h2><p>IPinfo <span class="source-tag">免费基础信息</span></p></div></div><a id="ipinfo-link" class="external-link" href="https://ipinfo.io/what-is-my-ip" target="_blank" rel="noopener noreferrer">查看原站 <span aria-hidden="true">↗</span></a></div><div id="info-result"></div></section>
       <section class="panel risk-panel" aria-labelledby="risk-title"><div class="panel-heading"><div class="source-title"><span class="source-logo risk-logo">s</span><div><h2 id="risk-title">风险评估</h2><p>Scamalytics <span class="source-tag">快捷跳转</span></p></div></div><a id="scam-link" class="external-link" href="https://scamalytics.com/" target="_blank" rel="noopener noreferrer">原站 <span aria-hidden="true">↗</span></a></div><div id="risk-result"></div></section>
     </div>
-    <section class="shortcuts-section" aria-labelledby="shortcut-title"><div class="section-heading"><div><h2 id="shortcut-title">继续交叉验证</h2><p>这些网站暂以快捷入口提供，结果需在原站查看。</p></div><span class="small muted" id="shortcut-count">4 个快捷入口</span></div><div id="shortcuts" class="shortcut-grid"></div><p class="routing-note"><span aria-hidden="true">ⓘ</span> 检测当前连接的网站会使用访问它时的出口；开启代理分流时，它看到的 IP 可能不同。</p></section>
+    <section class="shortcuts-section" aria-labelledby="shortcut-title"><div class="section-heading"><div><h2 id="shortcut-title">继续交叉验证</h2><p>这些网站暂以快捷入口提供，结果需在原站查看。</p></div><div class="source-actions"><span class="small muted" id="shortcut-count">4 个快捷入口</span><button class="button secondary add-source-button" data-action="add">+ 添加检测网站</button></div></div><div id="shortcuts" class="shortcut-grid"></div><p class="routing-note"><span aria-hidden="true">ⓘ</span> 检测当前连接的网站会使用访问它时的出口；开启代理分流时，它看到的 IP 可能不同。</p></section>
     <footer><span class="footer-brand">IP Lens</span><span>IP 数据由 <a href="https://ipinfo.io" target="_blank" rel="noopener noreferrer">IPinfo</a> 提供。</span><button data-action="about">关于 IP Lens <span aria-hidden="true">↗</span></button></footer>
   </main>
   <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="add-source-dialog" class="modal add-source-modal" aria-labelledby="add-source-title" aria-describedby="add-source-access">
+    <div class="modal-heading"><div><span class="eyebrow">仓库协作入口</span><h2 id="add-source-title">添加检测网站</h2></div><button class="icon-button" data-close="add-source-dialog" aria-label="关闭添加检测网站">×</button></div>
+    <p class="muted" id="add-source-access">填写后前往 GitHub 确认提交。只有仓库中有写入权限的合作者能发布新增网站；普通访客无法直接改动本站。</p>
+    <form id="add-source-form" class="source-form">
+      <div class="source-form-row"><label>网站名称<input name="name" required maxlength="40" placeholder="例如：Example IP"></label><label>唯一标识<input name="id" required maxlength="48" pattern="[a-z][a-z0-9-]*" placeholder="例如：example-ip" spellcheck="false" autocapitalize="none"><span>小写字母、数字或短横线</span></label></div>
+      <label>检测网址<input name="url" type="url" required maxlength="500" placeholder="https://example.com/check" spellcheck="false"><span>仅支持 HTTPS，请勿填写含密钥或私密信息的网址。</span></label>
+      <label>卡片简述<input name="description" required maxlength="80" placeholder="例如：IP 信誉与代理标记查询"></label>
+      <label>检测方式<select name="type"><option>原站查询</option><option>检测当前连接</option><option>打开自动检测</option></select></label>
+      <label>悬停提示<textarea name="hint" required maxlength="320" rows="3" placeholder="简要说明检测什么、分数方向，以及结果该怎么看。"></textarea></label>
+      <p id="source-form-error" class="field-error" role="alert" hidden></p>
+      <button class="button primary" type="submit">生成 GitHub 提交 <span aria-hidden="true">↗</span></button>
+    </form>
+    <div id="source-draft" class="source-draft" hidden>
+      <h3>配置已准备好，尚未发布</h3><p>在 GitHub 核对文件内容并提交；进入 main 后将自动检查并上线。无写入权限时，GitHub 可能仅允许提出 fork / PR 建议，需合作者审核合并。</p>
+      <a id="source-github-link" class="button primary" target="_blank" rel="noopener noreferrer">在 GitHub 确认添加 ↗</a>
+      <details><summary>查看配置（也可复制粘贴）</summary><pre id="source-draft-code"></pre><button type="button" class="text-button" id="copy-source-draft">复制配置</button></details>
+    </div>
+    <p class="source-access-note"><a href="https://github.com/baihejiangnan/ip-lens/tree/main/sources" target="_blank" rel="noopener noreferrer">编辑已有检测源 ↗</a><a href="https://github.com/baihejiangnan/ip-lens/blob/main/AGENTS.md" target="_blank" rel="noopener noreferrer">Agent 开发指南 ↗</a></p>
+  </dialog>
   <dialog id="glossary-dialog" class="modal glossary-modal"><div class="modal-heading"><div><span class="eyebrow">读懂检测结果</span><h2>不熟悉这些名词？</h2></div><button class="icon-button" data-close="glossary-dialog" aria-label="关闭术语说明">×</button></div><p class="muted">悬停、聚焦或点击结果旁的问号，也可以查看解释。</p><div id="glossary-content"></div><div class="modal-footer"><span class="small muted">解释依据官方字段定义，结果仍需交叉判断。</span><button class="button secondary" data-close="glossary-dialog">知道了</button></div></dialog>
   <dialog id="manage-dialog" class="modal manage-modal"><div class="modal-heading"><div><span class="eyebrow">按你的习惯排列</span><h2>管理检测源</h2></div><button class="icon-button" data-close="manage-dialog" aria-label="关闭检测源设置">×</button></div><p class="muted">选择显示的来源，用上下按钮调整顺序。偏好保存在此浏览器。</p><div id="manage-content"></div><div class="modal-footer"><button class="text-button" id="reset-sources">恢复默认</button><button class="button primary" data-close="manage-dialog">完成</button></div></dialog>
   <dialog id="about-dialog" class="modal about-modal"><div class="modal-heading"><h2>关于 IP Lens</h2><button class="icon-button" data-close="about-dialog" aria-label="关闭说明">×</button></div><p>IP Lens 汇总免费 IP 基础信息与常用检测入口。IP 地址数据由 <a href="https://ipinfo.io" target="_blank" rel="noopener noreferrer">IPinfo</a> 提供。</p><p>当前 IP 是访问对应检测服务时看到的出口。开启代理分流时，其他网站看到的出口可能不同。</p><p>免费基础查询不提供 VPN、住宅身份和欺诈风险结论。没有数据的字段显示“未提供”，不会推断为安全。</p><p>Scamalytics 在原位置提供带入查询 IP 的风险评估入口。具体分数与详细信息请在原站查看。</p><p>页面在本机保存检测源偏好，不保存查询历史。使用其他检测站时，查询 IP 会发送至对应服务。</p><button class="button primary" data-close="about-dialog">明白了</button></dialog>

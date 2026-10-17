@@ -1,11 +1,12 @@
 'use strict';
+import './config.js';
+const assetVersion=new URL(import.meta.url).search;
+const [{default:catalog},{validateSource,mergePreferences,githubDraftURL}]=await Promise.all([
+  import('./catalog.js'+assetVersion),import('./source-model.mjs'+assetVersion)
+]);
 const $ = (s) => document.querySelector(s);
 const escapeHTML = (v) => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const terms = {
-  ipok: {title:'IPOK 检测提示', text:'汇总 IP 类型、代理 / VPN 标记与黑名单等风险信号。风险值为 0–100，越低表示该站发现的不利证据越少；结合来源明细查看，低分不保证所有平台都可用。', url:'https://ipok.io/'},
-  coffee: {title:'Net.Coffee 检测提示', text:'查看当前出口、归属地及访问不同网站时的出口 IP。对比各站 IP 是否符合预期分流；不同 IP 不一定异常，“未知”也不等于连接失败。', url:'https://ip.net.coffee/'},
-  ipip: {title:'IPIP.la 检测提示', text:'检查网络、浏览器指纹及时区 / 语言等环境一致性。伪装正确率越高，表示该站判定的环境匹配程度越高；优先看“注意”“风险”和整改建议，不等同于 IP 欺诈风险评分。', url:'https://ipip.la/disguise.html'},
-  dns: {title:'DNS 检测提示', text:'重点留意：DNS 结果中是否出现中国（CN）地区。地区仅供参考；若非预期，请检查 DNS 与代理分流。', url:'https://browserleaks.com/dns'},
   type: {title:'AS Type · 网络类型', text:'ASN 所属组织的类型。isp 表示互联网服务提供商，hosting 表示托管或机房网络，business 表示企业网络。运营商网络也可能用于代理或商业服务，不能仅凭 isp 认定为家庭住宅 IP。', url:'https://ipinfo.io/developers/asn'},
   privacy: {title:'Privacy · 匿名服务标记', text:'表示数据源是否将该 IP 关联到 VPN、代理、Tor 或中继等匿名服务。false 只表示未被该数据源识别；不保证没有使用代理。true 也不等于发生了恶意行为。', url:'https://ipinfo.io/developers/data-types'},
   vpn: {title:'VPN · 虚拟专用网络', text:'表示该数据源是否将 IP 识别为 VPN 出口。不同数据库可能得出不同结论；“未识别”不是对没有使用 VPN 的保证。', url:'https://ipinfo.io/developers/data-types'},
@@ -20,21 +21,17 @@ const terms = {
 const defaults = [
   {id:'ipinfo',name:'IPinfo',kind:'IP 基础信息 · 实时查询',enabled:true},
   {id:'scam',name:'Scamalytics',kind:'IP 风险评估 · 快捷跳转',enabled:true},
-  {id:'ipok',name:'IPOK',kind:'IP 纯净度与风险查询 · 快捷入口',enabled:true},
-  {id:'coffee',name:'Net.Coffee',kind:'IP 查询与分流测试 · 快捷入口',enabled:true},
-  {id:'ipip',name:'IPIP.la',kind:'伪装与环境检测 · 快捷入口',enabled:true},
-  {id:'leaks',name:'BrowserLeaks',kind:'DNS 泄漏检测 · 打开自动检测',enabled:true}
+  ...catalog.map(source=>({id:source.id,name:source.name,kind:`${source.description} · 快捷入口`,enabled:true}))
 ];
-const shortcuts = {
-  ipok:{initial:'OK',name:'IPOK',desc:'IP 纯净度与风险查询',type:'原站查询',url:'https://ipok.io/',help:'ipok'},
-  coffee:{initial:'nc',name:'Net.Coffee',desc:'查看 IP 与代理分流情况',type:'检测当前连接',url:'https://ip.net.coffee/',help:'coffee'},
-  ipip:{initial:'la',name:'IPIP.la',desc:'伪装程度与浏览器环境',type:'检测当前连接',url:'https://ipip.la/disguise.html',help:'ipip'},
-  leaks:{initial:'bl',name:'BrowserLeaks',desc:'DNS 泄漏检测 · 当前浏览器连接',type:'打开自动检测',url:'https://browserleaks.com/dns',help:'dns'}
-};
+const shortcuts = Object.fromEntries(catalog.map(source=>{
+  const help=`source-${source.id}`;
+  terms[help]={title:`${source.name} 检测提示`,text:source.hint,url:source.url};
+  return [source.id,{...source,desc:source.description,help}];
+}));
 const config=window.IP_LENS_CONFIG||{};
 const apiBase=String(config.apiBase||'').replace(/\/$/,'');
 let sources = defaults.map(s=>({...s}));
-try {const saved=JSON.parse(localStorage.getItem('ip-lens-sources')); if(Array.isArray(saved)&&saved.length===defaults.length&&new Set(saved.map(s=>s.id)).size===defaults.length&&saved.every(s=>defaults.some(d=>d.id===s.id))) sources=saved.map(s=>({...defaults.find(d=>d.id===s.id),enabled:s.enabled!==false}));} catch {}
+try {sources=mergePreferences(defaults,JSON.parse(localStorage.getItem('ip-lens-sources')));} catch {}
 const state={mode:'current',ip:'',completedIP:'',status:{ipinfo:'idle'},busy:false,run:0,time:null,raw:false,info:null,error:'',ipSource:''};
 const help=(key)=>`<button type="button" class="help" data-term="${key}" aria-label="解释 ${escapeHTML(terms[key].title)}" aria-expanded="false">?</button>`;
 function persist(){try{localStorage.setItem('ip-lens-sources',JSON.stringify(sources.map(({id,enabled})=>({id,enabled}))));}catch{toast('浏览器未允许保存偏好，本次设置仍有效。');}}
@@ -75,7 +72,7 @@ function renderSummary(){
 }
 function renderShortcuts(){
   const items=sources.filter(s=>s.enabled&&shortcuts[s.id]);$('#shortcut-count').textContent=`${items.length} 个快捷入口`;
-  $('#shortcuts').innerHTML=items.length?items.map(s=>{const c=shortcuts[s.id];return `<div class="shortcut-shell"><a class="shortcut" href="${c.url}" target="_blank" rel="noopener noreferrer" aria-label="在新标签页打开 ${c.name}，${c.type}"><div class="shortcut-top"><span class="shortcut-monogram" aria-hidden="true">${c.initial}</span><span class="shortcut-arrow" aria-hidden="true">↗</span></div><h3>${c.name}</h3><p>${c.desc}</p><span class="shortcut-type">${c.type} · 快捷跳转</span></a>${c.help?`<button type="button" class="shortcut-help" data-term="${c.help}" aria-label="${terms[c.help].title}" aria-expanded="false"><span class="help" aria-hidden="true">?</span></button>`:''}</div>`;}).join(''):'<div class="all-empty">快捷入口已全部关闭。可在“管理检测源”中重新开启。</div>';
+  $('#shortcuts').innerHTML=items.length?items.map(s=>{const c=shortcuts[s.id];return `<div class="shortcut-shell"><a class="shortcut" href="${escapeHTML(c.url)}" target="_blank" rel="noopener noreferrer" aria-label="在新标签页打开 ${escapeHTML(c.name)}，${escapeHTML(c.type)}"><div class="shortcut-top"><span class="shortcut-monogram" aria-hidden="true">${escapeHTML(c.initial)}</span><span class="shortcut-arrow" aria-hidden="true">↗</span></div><h3>${escapeHTML(c.name)}</h3><p>${escapeHTML(c.desc)}</p><span class="shortcut-type">${escapeHTML(c.type)} · 快捷跳转</span></a><button type="button" class="shortcut-help" data-term="${c.help}" aria-label="${escapeHTML(terms[c.help].title)}" aria-expanded="false"><span class="help" aria-hidden="true">?</span></button></div>`;}).join(''):'<div class="all-empty">快捷入口已全部关闭。可在“管理检测源”中重新开启。</div>';
 }
 function render(){hideTooltip();renderInfo();renderRisk();renderSummary();renderShortcuts();syncLinks();const order=sources.filter(s=>s.id==='ipinfo'||s.id==='scam');$('.info-panel').style.order=order.findIndex(s=>s.id==='ipinfo');$('.risk-panel').style.order=order.findIndex(s=>s.id==='scam');}
 function updateQueryMeta(){
@@ -131,10 +128,10 @@ async function run(){
 }
 function retryInfo(){return run();}
 function renderManage(){
-  $('#manage-content').innerHTML=sources.map((s,i)=>`<div class="source-setting"><input id="source-${s.id}" type="checkbox" data-source="${s.id}" ${s.enabled?'checked':''}><label for="source-${s.id}"><b>${s.name}</b><span>${s.kind}</span></label><div class="move-buttons"><button data-move="${s.id}" data-step="-1" ${i===0?'disabled':''} aria-label="上移 ${s.name}">↑</button><button data-move="${s.id}" data-step="1" ${i===sources.length-1?'disabled':''} aria-label="下移 ${s.name}">↓</button></div></div>`).join('');
+  $('#manage-content').innerHTML=sources.map((s,i)=>`<div class="source-setting"><input id="source-${s.id}" type="checkbox" data-source="${s.id}" ${s.enabled?'checked':''}><label for="source-${s.id}"><b>${escapeHTML(s.name)}</b><span>${escapeHTML(s.kind)}</span></label><div class="move-buttons"><button data-move="${s.id}" data-step="-1" ${i===0?'disabled':''} aria-label="上移 ${escapeHTML(s.name)}">↑</button><button data-move="${s.id}" data-step="1" ${i===sources.length-1?'disabled':''} aria-label="下移 ${escapeHTML(s.name)}">↓</button></div></div>`).join('');
 }
 function openDialog(id){hideTooltip();if(id==='manage-dialog')renderManage();$('#'+id).showModal();}
-$('#glossary-content').innerHTML=Object.values(terms).map(t=>`<div class="glossary-item"><h3>${t.title}</h3><p>${t.text}</p><a href="${t.url}" target="_blank" rel="noopener noreferrer">官方字段说明 ↗</a></div>`).join('');
+$('#glossary-content').innerHTML=Object.values(terms).map(t=>`<div class="glossary-item"><h3>${escapeHTML(t.title)}</h3><p>${escapeHTML(t.text)}</p><a href="${escapeHTML(t.url)}" target="_blank" rel="noopener noreferrer">查看来源说明 ↗</a></div>`).join('');
 let tooltipOwner=null,pinned=false;
 function showTooltip(button,pin=false){
   if(tooltipOwner&&tooltipOwner!==button)tooltipOwner.setAttribute('aria-expanded','false');
@@ -151,7 +148,7 @@ window.addEventListener('scroll',hideTooltip,{passive:true});window.addEventList
 document.addEventListener('click',e=>{
   const term=e.target.closest('[data-term]');if(term){if(tooltipOwner===term&&pinned)hideTooltip();else showTooltip(term,true);return;}
   hideTooltip();const close=e.target.closest('[data-close]');if(close){$('#'+close.dataset.close).close();return;}
-  const action=e.target.closest('[data-action]');if(action){openDialog({glossary:'glossary-dialog',manage:'manage-dialog',about:'about-dialog'}[action.dataset.action]);return;}
+  const action=e.target.closest('[data-action]');if(action){openDialog({glossary:'glossary-dialog',manage:'manage-dialog',about:'about-dialog',add:'add-source-dialog'}[action.dataset.action]);return;}
   if(e.target.closest('#raw-toggle')){state.raw=!state.raw;renderInfo();return;}
   if(e.target.closest('#retry-info')){retryInfo();return;}
   const move=e.target.closest('[data-move]');if(move){const i=sources.findIndex(s=>s.id===move.dataset.move),j=i+Number(move.dataset.step);if(j<0||j>=sources.length)return;[sources[i],sources[j]]=[sources[j],sources[i]];persist();renderManage();render();$('#manage-content').querySelector(`[data-move="${move.dataset.move}"][data-step="${move.dataset.step}"]`).focus();}
@@ -161,5 +158,19 @@ for(const dialog of document.querySelectorAll('dialog'))dialog.addEventListener(
 $('#reset-sources').addEventListener('click',()=>{sources=defaults.map(s=>({...s}));persist();renderManage();render();toast('已恢复默认检测源与排序。');});
 $('#current-mode').addEventListener('click',()=>setMode('current'));$('#manual-mode').addEventListener('click',()=>setMode('manual'));
 $('#query-form').addEventListener('submit',e=>{e.preventDefault();run();});$('#ip-input').addEventListener('input',clearError);
+$('#add-source-form').addEventListener('input',()=>{$('#source-draft').hidden=true;$('#source-form-error').hidden=true;});
+$('#add-source-form').addEventListener('submit',e=>{
+  e.preventDefault();
+  try{
+    const data=new FormData(e.currentTarget),name=String(data.get('name')).trim();
+    const source=validateSource({id:String(data.get('id')),name,url:String(data.get('url')),description:String(data.get('description')),initial:[...name].slice(0,2).join(''),hint:String(data.get('hint')),type:String(data.get('type')),order:Math.min(9999,Math.max(0,...catalog.map(s=>s.order))+10)});
+    if(defaults.some(s=>s.id===source.id)||catalog.some(s=>s.url===source.url))throw new Error('这个标识或网址已存在，请修改已有检测源，或换一个唯一标识。');
+    $('#source-draft-code').textContent=JSON.stringify(source,null,2);
+    $('#source-github-link').href=githubDraftURL(source);
+    $('#source-draft').hidden=false;$('#source-form-error').hidden=true;
+    $('#source-github-link').focus();
+  }catch(error){$('#source-form-error').textContent=error.message;$('#source-form-error').hidden=false;}
+});
+$('#copy-source-draft').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#source-draft-code').textContent);toast('检测源配置已复制。');}catch{toast('无法自动复制，请选中配置文本后复制。');}});
 $('#copy-ip').addEventListener('click',async()=>{const v=$('#ip-input').value.trim();if(!validIP(v)){toast('请先输入有效的 IP 地址。');return;}try{await navigator.clipboard.writeText(v);toast('IP 已复制：'+v);}catch{const t=document.createElement('textarea');t.value=v;t.style.position='fixed';t.style.opacity='0';document.body.append(t);t.select();const success=document.execCommand('copy');t.remove();toast(success?'IP 已复制：'+v:'无法自动复制，请选中 IP 后复制。');}});
 render();updateQueryMeta();run();

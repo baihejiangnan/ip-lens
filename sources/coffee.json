@@ -1,0 +1,10 @@
+{
+  "id": "coffee",
+  "name": "Net.Coffee",
+  "url": "https://ip.net.coffee/",
+  "description": "查看 IP 与代理分流情况",
+  "initial": "nc",
+  "hint": "查看当前出口、归属地及访问不同网站时的出口 IP。对比各站 IP 是否符合预期分流；不同 IP 不一定异常，“未知”也不等于连接失败。",
+  "type": "检测当前连接",
+  "order": 20
+}

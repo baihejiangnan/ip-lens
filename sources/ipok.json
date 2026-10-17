@@ -1,0 +1,10 @@
+{
+  "id": "ipok",
+  "name": "IPOK",
+  "url": "https://ipok.io/",
+  "description": "IP 纯净度与风险查询",
+  "initial": "OK",
+  "hint": "汇总 IP 类型、代理 / VPN 标记与黑名单等风险信号。风险值为 0–100，越低表示该站发现的不利证据越少；结合来源明细查看，低分不保证所有平台都可用。",
+  "type": "原站查询",
+  "order": 10
+}

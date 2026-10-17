@@ -1,0 +1,10 @@
+{
+  "id": "leaks",
+  "name": "BrowserLeaks",
+  "url": "https://browserleaks.com/dns",
+  "description": "DNS 泄漏检测 · 当前浏览器连接",
+  "initial": "bl",
+  "hint": "重点留意：DNS 结果中是否出现中国（CN）地区。地区仅供参考；若非预期，请检查 DNS 与代理分流。",
+  "type": "打开自动检测",
+  "order": 40
+}
