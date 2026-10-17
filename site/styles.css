@@ -15,4 +15,5 @@
 @media(max-width:760px){.risk-jump{padding-left:24px;padding-right:24px}.risk-jump-tag{margin-bottom:14px}.risk-jump~.risk-note{margin-top:20px}}
 @media(max-width:480px){.risk-jump{padding-left:18px;padding-right:18px}}
 
-.shortcut-note{display:block;margin-top:12px;padding:10px 11px;border-radius:7px;background:var(--amber-light);color:var(--amber);font-size:12px;line-height:1.8}.shortcut-note strong{display:block;font-weight:600}.shortcut-note>span{display:block;margin-top:5px;font-size:11px;color:#795526}
+.shortcut-shell{position:relative;min-width:0}.shortcut-shell>.shortcut{height:100%}.shortcut-help{position:absolute;top:11px;right:36px;width:44px;height:44px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:8px}.shortcut-help:hover .help,.shortcut-help[aria-expanded=true] .help{background:var(--green-light);border-color:var(--green);color:var(--green)}
+.tooltip{width:300px;max-width:calc(100vw - 24px)}

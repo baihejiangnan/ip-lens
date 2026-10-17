@@ -2,6 +2,7 @@
 const $ = (s) => document.querySelector(s);
 const escapeHTML = (v) => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const terms = {
+  dns: {title:'DNS 检测提示', text:'重点留意：DNS 结果中是否出现中国（CN）地区。地区仅供参考；若非预期，请检查 DNS 与代理分流。', url:'https://browserleaks.com/dns'},
   type: {title:'AS Type · 网络类型', text:'ASN 所属组织的类型。isp 表示互联网服务提供商，hosting 表示托管或机房网络，business 表示企业网络。运营商网络也可能用于代理或商业服务，不能仅凭 isp 认定为家庭住宅 IP。', url:'https://ipinfo.io/developers/asn'},
   privacy: {title:'Privacy · 匿名服务标记', text:'表示数据源是否将该 IP 关联到 VPN、代理、Tor 或中继等匿名服务。false 只表示未被该数据源识别；不保证没有使用代理。true 也不等于发生了恶意行为。', url:'https://ipinfo.io/developers/data-types'},
   vpn: {title:'VPN · 虚拟专用网络', text:'表示该数据源是否将 IP 识别为 VPN 出口。不同数据库可能得出不同结论；“未识别”不是对没有使用 VPN 的保证。', url:'https://ipinfo.io/developers/data-types'},
@@ -25,7 +26,7 @@ const shortcuts = {
   ipok:{initial:'OK',name:'IPOK',desc:'IP 纯净度与风险查询',type:'原站查询',url:'https://ipok.io/'},
   coffee:{initial:'nc',name:'Net.Coffee',desc:'查看 IP 与代理分流情况',type:'检测当前连接',url:'https://ip.net.coffee/'},
   ipip:{initial:'la',name:'IPIP.la',desc:'伪装程度与浏览器环境',type:'检测当前连接',url:'https://ipip.la/disguise.html'},
-  leaks:{initial:'bl',name:'BrowserLeaks',desc:'DNS 泄漏检测 · 当前浏览器连接',type:'打开自动检测',url:'https://browserleaks.com/dns',note:'重点留意：DNS 结果中是否出现中国（CN）地区。',noteDetail:'地区仅供参考；若非预期，请检查 DNS 与代理分流。'}
+  leaks:{initial:'bl',name:'BrowserLeaks',desc:'DNS 泄漏检测 · 当前浏览器连接',type:'打开自动检测',url:'https://browserleaks.com/dns',help:'dns'}
 };
 const config=window.IP_LENS_CONFIG||{};
 const apiBase=String(config.apiBase||'').replace(/\/$/,'');
@@ -71,7 +72,7 @@ function renderSummary(){
 }
 function renderShortcuts(){
   const items=sources.filter(s=>s.enabled&&shortcuts[s.id]);$('#shortcut-count').textContent=`${items.length} 个快捷入口`;
-  $('#shortcuts').innerHTML=items.length?items.map(s=>{const c=shortcuts[s.id];return `<a class="shortcut" href="${c.url}" target="_blank" rel="noopener noreferrer" aria-label="在新标签页打开 ${c.name}，${c.type}"><div class="shortcut-top"><span class="shortcut-monogram" aria-hidden="true">${c.initial}</span><span class="shortcut-arrow" aria-hidden="true">↗</span></div><h3>${c.name}</h3><p>${c.desc}</p><span class="shortcut-type">${c.type} · 快捷跳转</span>${c.note?`<span class="shortcut-note"><strong>${c.note}</strong><span>${c.noteDetail}</span></span>`:''}</a>`;}).join(''):'<div class="all-empty">快捷入口已全部关闭。可在“管理检测源”中重新开启。</div>';
+  $('#shortcuts').innerHTML=items.length?items.map(s=>{const c=shortcuts[s.id];return `<div class="shortcut-shell"><a class="shortcut" href="${c.url}" target="_blank" rel="noopener noreferrer" aria-label="在新标签页打开 ${c.name}，${c.type}"><div class="shortcut-top"><span class="shortcut-monogram" aria-hidden="true">${c.initial}</span><span class="shortcut-arrow" aria-hidden="true">↗</span></div><h3>${c.name}</h3><p>${c.desc}</p><span class="shortcut-type">${c.type} · 快捷跳转</span></a>${c.help?`<button type="button" class="shortcut-help" data-term="${c.help}" aria-label="${terms[c.help].title}" aria-expanded="false"><span class="help" aria-hidden="true">?</span></button>`:''}</div>`;}).join(''):'<div class="all-empty">快捷入口已全部关闭。可在“管理检测源”中重新开启。</div>';
 }
 function render(){hideTooltip();renderInfo();renderRisk();renderSummary();renderShortcuts();syncLinks();const order=sources.filter(s=>s.id==='ipinfo'||s.id==='scam');$('.info-panel').style.order=order.findIndex(s=>s.id==='ipinfo');$('.risk-panel').style.order=order.findIndex(s=>s.id==='scam');}
 function updateQueryMeta(){
