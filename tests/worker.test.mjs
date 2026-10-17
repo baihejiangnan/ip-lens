@@ -54,6 +54,12 @@ test('rejects a response for another IP',async(t)=>{
   const r=await worker.fetch(req('/api/lookup?ip=1.1.1.1'),env,ctx);assert.equal(r.status,502);
 });
 
+test('accepts a canonically equivalent IPv6 returned by the provider',async(t)=>{
+  t.mock.method(globalThis,'fetch',async()=>Response.json({ip:'2001:4860:4860::8888'}));
+  const r=await worker.fetch(req('/api/lookup?ip=2001:4860:4860:0:0:0:0:8888'),env,ctx);
+  assert.equal(r.status,200);
+});
+
 test('client-IP endpoint returns the visitor address, not a server egress address',async()=>{
   const r=await worker.fetch(req('/api/ip',{headers:{Origin:origin,'CF-Connecting-IP':'1.1.1.1'}}),env,ctx);
   assert.deepEqual(await r.json(),{ip:'1.1.1.1',provider:'Cloudflare'});

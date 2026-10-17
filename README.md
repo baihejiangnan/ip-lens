@@ -2,6 +2,9 @@
 
 IP 信息与常用风险检测入口聚合工具。前端托管在 GitHub Pages，免费 IPinfo Lite 查询通过 Cloudflare Workers 转发。Scamalytics 暂时使用原位置的带 IP 跳转卡片。
 
+- 网站：https://baihejiangnan.github.io/ip-lens/
+- 后端：https://ip-lens-api.ip-lens.workers.dev
+
 ## 当前能力
 
 - 浏览器获取当前出口 IP，支持手动查询 IPv4 / IPv6。
@@ -15,7 +18,7 @@ IP 信息与常用风险检测入口聚合工具。前端托管在 GitHub Pages�
 
 浏览器调用 `https://api.ipinfo.io/ip` 获取访问 IPinfo 时的出口，再把固定 IP 交给 Worker 查询 Lite。不会把 Worker 的出口当作用户 IP。IPinfo 连接失败时，可从 Worker 获取访问检测服务时的出口；页面会标明观察来源。代理分流可能让其他网站看到不同出口。
 
-未配置 Worker 地址时，页面使用 IPinfo 无账号公开 JSON 接口作为过渡方式，受同一出口每天 1,000 次共享额度限制。配置后使用免费 Lite Token，按 IPinfo 当前文档没有每日/月度查询上限。两种路径都不把缺失的高级字段当作安全结论。
+未配置 Worker 地址时，页面尝试 IPinfo 无账号公开 JSON 接口作为过渡方式，受同一出口每天 1,000 次共享额度限制。浏览器跨域策略或代理分流可能让该备用接口不可用，因此正式部署已配置 Worker。配置后使用免费 Lite Token，按 IPinfo 当前文档没有每日/月度查询上限。两种路径都不把缺失的高级字段当作安全结论。
 
 ## 本地开发
 
